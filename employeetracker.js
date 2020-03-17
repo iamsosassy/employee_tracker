@@ -75,7 +75,7 @@ function startquestions() {
         }
     });
 };
-
+// allow to add for department, role and employee
 function addDepartment() {
     inquirer
         .prompt({
@@ -102,25 +102,110 @@ function addRole() {
         function(error, result) {
             if (error) throw error;
             console.log("All departments!", result);
+            var departmentsarray = []
+            for (var i = 0; i < result.length; i++) {
+                departmentsarray.push(result[i].department_name)
+            }
             inquirer
                 .prompt([{
                     type: "input",
                     name: "Title",
-                    message: "What is your title of your role?",
+                    message: "What is the title of the role?",
 
                 }, {
                     type: "input",
                     name: "Salary",
-                    message: "What is the salary of the role?",
-
+                    message: "What is the annual salary?",
 
                 }, {
                     type: "list",
                     name: "department_id",
                     message: "What is your department?",
-                    choices: ["Sales", "Engineering", "Marketing"]
+                    choices: departmentsarray
                 }]).then(function(answer) {
-                    console.log(answer)
+                    console.log(answer);
+                    var departmentID
+                    for (var i = 0; i < result.length; i++) {
+                        if (result[i].department_name === answer.department_id) {
+                            departmentID = result[i].id
+                        }
+                    }
+                    var numSalary = parseFloat(answer.Salary)
+                    connection.query("INSERT INTO role (title, salary, department_id) VALUES (?,?,?) ", [
+                        answer.Title,
+                        numSalary,
+                        departmentID
+
+                    ], function(err, newrole) {
+                        console.log(err, newrole);
+                    })
+                    startquestions()
                 })
         });
+}
+
+function addEmployee() {
+    connection.query("SELECT * from employee", function(error, results) {
+        if (error) throw error;
+        console.log("I got it to work!", result);
+        inquirer
+            .prompt([{
+                type: "input",
+                name: "firstname",
+                message: "What is employee's first name?",
+
+            }, {
+
+                type: "input",
+                name: "lastname",
+                message: "What is employee's last name?",
+            }]).then(function(answer) {
+                connection.query("INSERT INTO employee VALUES (?)", {
+                    first_name: answer.firstname,
+                    last_name: answer.lastname,
+                    role_id: INT,
+                    manager_id: INT,
+
+                    function(error, answer) {
+                        if (error) {
+                            throw error;
+
+                        }
+                        console.log("Please work", result);
+
+                        startquestions()
+                    }
+
+                });
+            })
+
+    })
+}
+// allows user to view all departments currently in the database
+function viewalldepartments() {
+    connection.query("SELECT * FROM department", function(error, answer) {
+        console.log("\n Departments Retrieved from Database \n");
+        console.table(answer);
+    });
+    startquestions();
+};
+
+// allows user to view all employee roles currently in the database
+function viewallroles() {
+    connection.query("SELECT * FROM role", function(error, answer) {
+        console.log("\n Roles Retrieved from Database \n");
+        console.table(answer);
+
+    });
+    startquestions();
+};
+
+// allows user to view all employees currently in the database
+function viewallemployees() {
+    console.log("retrieving employees from database");
+    connection.query(lookup, function(error, answer) {
+        console.log("\n Employees retrieved from Database \n");
+        console.table(answer);
+    });
+    startquestions();
 }
