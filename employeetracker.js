@@ -1,7 +1,8 @@
-var mysql = require("mysql");
-var inquirer = require('inquirer');
+const mysql = require("mysql");
+const inquirer = require('inquirer');
+const cTable = require('console.table')
 
-var connection = mysql.createConnection({
+const connection = mysql.createConnection({
     host: "localhost",
 
     // Your port; if not 3306
@@ -99,6 +100,7 @@ function addDepartment() {
 
 function addRole() {
     connection.query("SELECT * from department",
+
         function(error, result) {
             if (error) throw error;
             console.log("All departments!", result);
@@ -145,42 +147,48 @@ function addRole() {
 }
 
 function addEmployee() {
-    connection.query("SELECT * from employee", function(error, results) {
+    connection.query("SELECT * from employee", function(error, result) {
         if (error) throw error;
-        console.log("I got it to work!", result);
+        console.table(result);
         inquirer
             .prompt([{
-                type: "input",
-                name: "firstname",
-                message: "What is employee's first name?",
+                    type: "input",
+                    name: "firstname",
+                    message: "What is employee's first name?",
 
-            }, {
+                }, {
 
-                type: "input",
-                name: "lastname",
-                message: "What is employee's last name?",
-            }]).then(function(answer) {
-                connection.query("INSERT INTO employee VALUES (?)", {
-                    first_name: answer.firstname,
-                    last_name: answer.lastname,
-                    role_id: INT,
-                    manager_id: INT,
+                    type: "input",
+                    name: "lastname",
+                    message: "What is employee's last name?",
 
+                },
+                {
+                    type: "number",
+                    name: "role",
+                    message: "What is the role id?"
+                }
+            ]).then(function(answer) {
+                const query = connection.query("INSERT INTO employee SET ?", {
+                        first_name: answer.firstname,
+                        last_name: answer.lastname,
+                        role_id: answer.role,
+                        manager_id: null
+                    },
                     function(error, answer) {
                         if (error) {
                             throw error;
 
                         }
-                        console.log("Please work", result);
+                        console.log(query.sql);
 
                         startquestions()
-                    }
+                    })
 
-                });
-            })
-
+            });
     })
-}
+};
+
 // allows user to view all departments currently in the database
 function viewalldepartments() {
     connection.query("SELECT * FROM department", function(error, answer) {
@@ -203,7 +211,7 @@ function viewallroles() {
 // allows user to view all employees currently in the database
 function viewallemployees() {
     console.log("retrieving employees from database");
-    connection.query(lookup, function(error, answer) {
+    connection.query(function(error, answer) {
         console.log("\n Employees retrieved from Database \n");
         console.table(answer);
     });

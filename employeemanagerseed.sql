@@ -20,7 +20,7 @@ CREATE TABLE department
     title VARCHAR
         (30) NOT NULL,
     salary DECIMAL, 
-    department_id INT,
+    department_id INT, 
     PRIMARY KEY
         (id)
 );
@@ -34,24 +34,11 @@ CREATE TABLE department
     last_name VARCHAR
             (30) NOT NULL,
     role_id INT NOT NULL,
-    manager_id INT NOT NULL,
+    manager_id INT,
     PRIMARY KEY
             (id)
 );
 
-            INSERT INTO department
-                (id, department_name)
-            VALUES
-                ("", "", "");
-
-            INSERT INTO role
-                (id, title, salary, department_id)
-            VALUES
-                ("", "", "");
-
-            INSERT INTO employee
-                (id, first_name, last_name, role_id, manager_id)
-            VALUES
-                ("", "", "");
-
-
+            
+            
+            
