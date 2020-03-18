@@ -1,6 +1,7 @@
 const mysql = require("mysql");
 const inquirer = require('inquirer');
 const cTable = require('console.table')
+const dotenv = require('dotenv').config();
 
 const connection = mysql.createConnection({
     host: "localhost",
@@ -12,7 +13,7 @@ const connection = mysql.createConnection({
     user: "root",
 
     // Your password
-    password: "K?!?345bv",
+    password: process.env.YOLO,
     database: "employeemanager_DB"
 });
 
@@ -216,4 +217,46 @@ function viewallemployees() {
         console.table(answer);
     });
     startquestions();
+}
+
+function updateEmpRole() {
+    let allemp = [];
+    connection.query("SELECT * FROM employee", function(err, answer) {
+        for (let i = 0; i < answer.length; i++) {
+            let employeeString = answer[i].id + " " + answer[i].last_name;
+            allemp.push(employeeString);
+
+        }
+        inquirer
+            .prompt([{
+                    type: "list",
+                    name: "updateEmpRole",
+                    message: "select employee to update role",
+                    choices: allemp
+
+                }, {
+
+                    type: "list",
+                    name: "newrole",
+                    message: "select new role",
+                    choices: ["manager", "employee"]
+                }
+
+            ])
+            .then(function(answer) {
+                console.log("about to update", answer);
+                const idToUpdate = {};
+                idToUpdate.employeeId = parseInt(answer.updateEmpRole.split(" ")[0]);
+                if (answer.newrole === "manager") {
+                    idToUpdate.role_id = 1;
+                } else if (answer.newrole === "employee") {
+                    idToUpdate.role_id = 2;
+                }
+                connection.query(
+                    "UPDATE employee SET role_id = ? WHERE id = ?", [idToUpdate.role_id, idToUpdate.employeeId],
+                    function(err, data) {
+                        startquestions();
+                    })
+            })
+    })
 }
